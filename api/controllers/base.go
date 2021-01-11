@@ -31,11 +31,13 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 
 		log.Info("COnnected to Database .....")
 	}
+	server.Migrate()
 	server.Router = mux.NewRouter()
+	server.initializeRoutes()
 }
 
 func (server *Server) Migrate() {
-	server.DB.AutoMigrate(
+	server.DB.Debug().AutoMigrate(
 		models.User{},
 		models.Todo{},
 	)
@@ -43,4 +45,5 @@ func (server *Server) Migrate() {
 
 func (server *Server) Run(addr string) {
 	log.Fatal(http.ListenAndServe(addr, server.Router))
+	log.Info("Server is running on port", addr)
 }
