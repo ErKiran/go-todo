@@ -43,6 +43,37 @@ func (server *Server) CreateTodo(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusCreated, newTodo)
 }
 
+func (server *Server) ListTodos(w http.ResponseWriter, r *http.Request) {
+	uid, _ := auth.ExtractTokenID(r)
+	todo := models.Todo{}
+	todos, err := todo.FindAllTodoByUser(server.DB, uid)
+
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusCreated, todos)
+}
+
+func (server *Server) TodoDetail(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.ParseInt(vars["id"], 10, 64)
+
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	todo := models.Todo{}
+	todoDetails, err := todo.Find(server.DB, uint(id))
+
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusCreated, todoDetails)
+}
+
 func (server *Server) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.ParseInt(vars["id"], 10, 64)
