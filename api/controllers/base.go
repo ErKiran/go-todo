@@ -2,10 +2,13 @@ package controllers
 
 import (
 	"fmt"
-	"log"
+	"net/http"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres" //postgres database driver
 )
 
 type Server struct {
@@ -23,6 +26,12 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 		if err != nil {
 			log.Fatalf("Cannot connect to %s database: %v", Dbdriver, err)
 		}
+
+		log.Info("COnnected to Database .....")
 	}
 	server.Router = mux.NewRouter()
+}
+
+func (server *Server) Run(addr string) {
+	log.Fatal(http.ListenAndServe(addr, server.Router))
 }
