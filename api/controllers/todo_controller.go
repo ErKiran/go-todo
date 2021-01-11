@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"todo-api/api/auth"
 	"todo-api/api/models"
 	"todo-api/api/responses"
 
@@ -12,30 +13,29 @@ import (
 )
 
 func (server *Server) CreateTodo(w http.ResponseWriter, r *http.Request) {
+	uid, _ := auth.ExtractTokenID(r)
 	body, err := ioutil.ReadAll(r.Body)
 
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-
 	todo := models.Todo{}
-
 	err = json.Unmarshal(body, &todo)
-
+	todo.UserID = uid
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
+
 	todo.Prepare()
 	err = todo.Validate()
+
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-
 	newTodo, err := todo.Save(server.DB)
-
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -102,11 +102,20 @@ func (server *Server) DeleteTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deletedTodo, err := todo.Delete(server.DB, uint(id))
+	_, err = todo.Find(server.DB, uint(id))
 
 	if err != nil {
 		responses.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
-	responses.JSON(w, http.StatusCreated, deletedTodo)
+
+	_, err = todo.Delete(server.DB, uint(id))
+
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusCreated, map[string]string{
+		"status": "Ok",
+	})
 }

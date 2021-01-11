@@ -16,15 +16,15 @@ type Todo struct {
 	Description string     `gorm:"null;" json:"description"`
 	DueDate     time.Time  `gorm:"null;" json:"due_date"`
 	Priority    string     `gorm:"null;" json:"priority"`
-	Status      string     `gorm:"null;" json:"status"`
-	User        *User      `gorm:"foreignkey:UserID" json:"user"`
+	IsComplete  bool       `gorm:"null;" json:"is_complete"`
+	Category    string     `gorm:"null;" json:"category"`
 	UserID      uint       `gorm:"not null;" json:"user_id"`
 }
 
 func (data *Todo) Prepare() {
 	data.CreatedAt = time.Now()
 	data.UpdatedAt = time.Now()
-	data.Status = "CREATED"
+	data.IsComplete = false
 	data.Priority = "HIGH"
 }
 
@@ -52,7 +52,7 @@ func (data *Todo) Save(db *gorm.DB) (*Todo, error) {
 
 func (data *Todo) Find(db *gorm.DB, id uint) (*Todo, error) {
 	var err error
-	err = db.Debug().Model(&Todo{}).Preload("User").Where("id=?", id).Take(data).Error
+	err = db.Debug().Model(&Todo{}).Where("id=?", id).Take(data).Error
 
 	if err != nil {
 		return &Todo{}, err
@@ -61,10 +61,22 @@ func (data *Todo) Find(db *gorm.DB, id uint) (*Todo, error) {
 	return data, nil
 }
 
+func (data *Todo) FindAllTodoByUser(db *gorm.DB, userId uint) (*[]Todo, error) {
+	var err error
+	datas := []Todo{}
+	err = db.Debug().Model(&Todo{}).Where("user_id=?", userId).Find(&datas).Error
+
+	if err != nil {
+		return &[]Todo{}, err
+	}
+
+	return &datas, nil
+}
+
 func (data *Todo) FindAll(db *gorm.DB) (*[]Todo, error) {
 	var err error
 	datas := []Todo{}
-	err = db.Debug().Model(&Todo{}).Preload("User").Order("id desc").Find(&datas).Error
+	err = db.Debug().Model(&Todo{}).Order("id desc").Find(&datas).Error
 
 	if err != nil {
 		return &[]Todo{}, err
