@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"todo-api/api/models"
+
 	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
@@ -30,6 +32,13 @@ func (server *Server) Initialize(Dbdriver, DbUser, DbPassword, DbPort, DbHost, D
 		log.Info("COnnected to Database .....")
 	}
 	server.Router = mux.NewRouter()
+}
+
+func (server *Server) Migrate() {
+	server.DB.AutoMigrate(
+		models.User{},
+		models.Todo{},
+	)
 }
 
 func (server *Server) Run(addr string) {
