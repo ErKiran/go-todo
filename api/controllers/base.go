@@ -44,6 +44,6 @@ func (server *Server) Migrate() {
 }
 
 func (server *Server) Run(addr string) {
-	log.Fatal(http.ListenAndServe(addr, server.Router))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(": %v", addr), server.Router))
 	log.Info("Server is running on port", addr)
 }
