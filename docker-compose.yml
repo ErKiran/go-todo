@@ -9,7 +9,9 @@ services:
     volumes:
       - api:/usr/src/app/
     depends_on:
-      - todo-postgres          
+      - todo-postgres    
+    links:
+      - todo-postgres        
     networks:
       - todo
 
@@ -47,7 +49,6 @@ volumes:
   api:
   database_postgres:                  
 
-# Networks to be created to facilitate communication between containers
 networks:
   todo:
     driver: bridge
