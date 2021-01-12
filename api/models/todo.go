@@ -5,20 +5,22 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/lib/pq"
 )
 
 type Todo struct {
-	ID          uint       `gorm:"primary_key" json:"id"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
-	DeletedAt   *time.Time `json:"deleted_at"`
-	Title       string     `gorm:"not null;" json:"title"`
-	Description string     `gorm:"null;" json:"description"`
-	DueDate     time.Time  `gorm:"null;" json:"due_date"`
-	Priority    string     `gorm:"null;" json:"priority"`
-	IsComplete  bool       `gorm:"null;" json:"is_complete"`
-	Category    string     `gorm:"null;" json:"category"`
-	UserID      uint       `gorm:"not null;" json:"user_id"`
+	ID          uint          `gorm:"primary_key" json:"id"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+	DeletedAt   *time.Time    `json:"deleted_at"`
+	Title       string        `gorm:"not null;" json:"title"`
+	Description string        `gorm:"null;" json:"description"`
+	DueDate     time.Time     `gorm:"null;" json:"due_date"`
+	Priority    string        `gorm:"null;" json:"priority"`
+	IsComplete  bool          `gorm:"null;" json:"is_complete"`
+	Category    string        `gorm:"null;" json:"category"`
+	UserID      uint          `gorm:"not null;" json:"user_id"`
+	SharedTo    pq.Int64Array `gorm:"null; type:int[];" json:"shared_to"`
 }
 
 func (data *Todo) Prepare() {
